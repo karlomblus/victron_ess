@@ -15,6 +15,7 @@ solarpredict_url=""
 chargetime=4 # mitu tundi lubame soodusajal laadida
 max_inverttime=20 # mitu tundi max inverteril on lubatud. Võib olla ka 24. Rohkem testimise jaoks see muutuja
 
+max_solar_soc_reserve=50 # mitu % maksimaalselt võib akut jätta järgmise päeva päikesega laadimise jaoks (ennustuse põhjal, lisaks arvestatakse soc_maximum väärtust)
 
 soc_minimum= 20 # kui tühjaks lubame aku lasta
 soc_maximum=100 # kui palju maksimaalselt võrgust laeme
