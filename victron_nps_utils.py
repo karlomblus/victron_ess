@@ -219,14 +219,15 @@ def download_solarpredict(url):
     js = json.loads(data)
 
     if (not js['forecasts']):
-        print("solar_predict request failed?")
-        sys.exit();
+        print("WARNING: solar_predict request failed?")
+        #sys.exit();
 
     try:
         fc=js['forecasts']
     except KeyError:
-        print("Vastuses pole forecast datat?")
-        sys.exit();
+        print("WARNING: Vastuses pole solar_predict forecast datat?")
+        #sys.exit();
+        return ""
     #kirjutame kogu allalaetud data temp faili
     text_file = open(tempfile, "wt") 
     text_file.write(data)
@@ -235,7 +236,13 @@ def download_solarpredict(url):
 
 
 def next_solarpredict(url,selfconsume):
+    if len(url)==0:
+        print("WARNING: solarpredict url missing")
+        return 0
     fc=download_solarpredict(url)
+    if len(fc)==0:
+        print("WARNING: solarpredict response failed")
+        return 0
 
     gmt = time.gmtime(time.time())
     if gmt.tm_hour>=21: # kell 21 algab meil uus päev, st. uus soodusaja algus
