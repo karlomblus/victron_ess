@@ -44,6 +44,8 @@ for pair in (chargelist):
 
 keskmine_laadimishind=round(avg_s/avg_c,1)
 
+#todo: keskmine laadimishind võiks võtta arvesse ka päeval päikesest laetud nullhinda.
+
 inverttime=leia_inverttime();
 print("Hetkel on veel lubatud invertida",inverttime,"tundi")
 print("Keskmine laadimishind",keskmine_laadimishind,"senti") # see võib muutuda kui vahepeal laeti päikesest
@@ -84,9 +86,23 @@ if avg_c>0:
 else:
     keskmine_tyhjendamishind=0
 
-if laadimine>0 and current_soc_limit < soc_maximum:
-    print("Seadmistame MinimumSocLimit = " , soc_maximum)
-    ret= setdata('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit', soc_maximum)
+
+solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
+soc_maximum2=soc_maximum-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve);
+
+#todo: kui soc pole X aega 100-ni jõudnud, siis soc_maximum2+=X*?
+
+if soc_maximum2>98: # kui nii väike erinevus on, siis laadigu juba aku lõpuni täis
+    soc_maximum2=100
+if soc_maximum2< soc_minimum:
+    soc_maximum2=soc_minimum
+
+print ("Homse tootmise ennustus: ",solar_charge_estimate, "kWh, confi max soc:",soc_maximum, " seega võin laadida kuni: "+str(soc_maximum2)+"%");
+
+
+if laadimine>0 and current_soc_limit < soc_maximum2:
+    print("Seadmistame MinimumSocLimit = " , soc_maximum2)
+    ret= setdata('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit', soc_maximum2)
 elif laadimine>0:
     print("Kas on juba laadimine või oleme täis. Igaljuhul ei tee midagi")    
 elif tyhjendamine>0 and current_soc_limit > soc_minimum:

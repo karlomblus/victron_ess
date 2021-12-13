@@ -19,13 +19,17 @@ Kõige kallimatel tundidel kasutatakse akut ja elektrit võrgust ei võeta
 
 Vastavalt aku laetusele lisatakse jooksvalt tunde (päevane päikese laadimine) või visatakse mõni tund välja (suurenev koormus)
 
+Akusse jäetakse lisaks võrgust laadimisele "ruumi" ka järgmise päeva päikeseelektriga laadimiseks
 
 # todo:
-Arvestada solarpredictionit jätmaks akusse päevase laadimise jaoks ruumi
 
 Arvestada ajalugu, et aku pidevalt SoC alumises otsas poleks (umbes nagu victron battery optimizer)
 
 Logida tarbimist hindamaks paremini keskmist (praegu kasutatakse viimase mõõtmise hetkevõimsust)
+
+Keskmise laadimishinna juures võtta arvesse ka päikeseelektrist nullhinnaga laadimine (või arvestada võrkumüümise hinda)
+
+Logimine
 
 # tulemus:
 Tarbimine võrgust: ![Elektrikastus võrgust](power_from_grid.PNG)

@@ -255,7 +255,13 @@ def next_solarpredict(url,selfconsume):
             if est>(selfconsume/1000):
                 charge_est+=est - selfconsume/1000
     print ("total estimated:", total_est, "charge estimate: ", charge_est)
+    return charge_est
+
+
+
 
 # seda scripti käivitan vaid siis, kui tahan midagi testida.
 if __name__ == "__main__":
-    next_solarpredict(solarpredict_url,1500);
+    charge_est=next_solarpredict(solarpredict_url,1500)
+    soc_maximum2=int(round(soc_maximum - (100*charge_est*1000/akuwh)));
+    print ("Homse tootmise ennustus: ",charge_est, "confi max soc:",soc_maximum, " seega võin laadida kuni: ",soc_maximum2);
