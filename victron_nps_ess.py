@@ -3,7 +3,8 @@ from __future__ import print_function
 from __future__ import division
 from victron_nps_utils import *
 import json
-from datetime import datetime
+import datetime
+#from datetime import datetime
 import time
 
 
@@ -97,7 +98,7 @@ if soc_maximum2>98: # kui nii väike erinevus on, siis laadigu juba aku lõpuni 
 if soc_maximum2< soc_minimum:
     soc_maximum2=soc_minimum
 
-print ("Homse tootmise ennustus: ",solar_charge_estimate, "kWh, confi max soc:",soc_maximum, " seega võin laadida kuni: "+str(soc_maximum2)+"%");
+print ("Homse laadimise ennustus: ",solar_charge_estimate, "kWh, confi max soc:",soc_maximum, " seega võin laadida kuni: "+str(soc_maximum2)+"%");
 
 
 if laadimine>0 and current_soc_limit < soc_maximum2:

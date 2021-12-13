@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*
 from __future__ import print_function
 from __future__ import division
-from datetime import datetime
+#from datetime import datetime, timedelta
+import datetime
 import calendar
 import time
 import json
@@ -46,7 +47,7 @@ def download_prices(nihe,ohtuvenitus=0): # nihe on statistika tegemisel ajalukku
     if gmt.tm_hour>=21: # kell 21 algab meil uus päev, st. uus soodusaja algus
         gmt = time.gmtime(time.time()-(nihe-1)*86400)
     
-    tt_end=calendar.timegm(datetime(year=gmt.tm_year, month=gmt.tm_mon, day=gmt.tm_mday, hour=20, minute=59, second=59).timetuple())
+    tt_end=calendar.timegm(datetime.datetime(year=gmt.tm_year, month=gmt.tm_mon, day=gmt.tm_mday, hour=20, minute=59, second=59).timetuple())
     tt_start=tt_end-86400+1
     
     # kolm tundi enne uue soodusaja algust pärides vaatame natuke pikemalt ette. Võib juhtuda, et kell 20 on päeva kõige soodsam
@@ -239,25 +240,45 @@ def next_solarpredict(url,selfconsume):
     gmt = time.gmtime(time.time())
     if gmt.tm_hour>=21: # kell 21 algab meil uus päev, st. uus soodusaja algus
         gmt = time.gmtime(time.time()+86400)
-    tt_end=calendar.timegm(datetime(year=gmt.tm_year, month=gmt.tm_mon, day=gmt.tm_mday, hour=20, minute=59, second=59).timetuple())
+    tt_end=calendar.timegm(datetime.datetime(year=gmt.tm_year, month=gmt.tm_mon, day=gmt.tm_mday, hour=20, minute=59, second=59).timetuple())
     tt_start=tt_end-86400+1  +3600*6  # vaevalt UTC21 päike paistab, aga jätame eelmise õhtu ikkagi välja
     #print("Meid huvitab vahemik ", datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
     total_est=charge_est=0;
     for x in fc:
+        #print(x) # period
         end=x['period_end']
-        time2=datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%f0Z")
+        time2=datetime.datetime.strptime(end, "%Y-%m-%dT%H:%M:%S.%f0Z")
         tt2=calendar.timegm(time2.timetuple())
         if tt2>=tt_start and tt2 <= tt_end:
             est=x['pv_estimate']
             #print("End:",end," est:",est, " time2:", time2, "tt2:",tt2  )
             #print("see timestamp on UTC aeg:", datetime.utcfromtimestamp( tt2).strftime('%Y-%m-%d %H:%M:%S') )
             total_est+=est
-            if est>(selfconsume/1000):
-                charge_est+=est - selfconsume/1000
+            if est>((parse_isoduration(x['period'])/3600) * selfconsume/1000):
+                charge_est+=est - ( (parse_isoduration(x['period'])/3600) *  selfconsume/1000)
     print ("total estimated:", total_est, "charge estimate: ", charge_est)
     return charge_est
 
+def get_isosplit(s, split):
+    if split in s:
+        n, s = s.split(split)
+    else:
+        n = 0
+    return n, s
 
+
+def parse_isoduration(s):
+    # Remove prefix
+    s = s.split('P')[-1]
+    # Step through letter dividers
+    days, s = get_isosplit(s, 'D')
+    _, s = get_isosplit(s, 'T')
+    hours, s = get_isosplit(s, 'H')
+    minutes, s = get_isosplit(s, 'M')
+    seconds, s = get_isosplit(s, 'S')
+    # Convert all to seconds
+    dt = datetime.timedelta(days=int(days), hours=int(hours), minutes=int(minutes), seconds=int(seconds))
+    return int(dt.total_seconds())
 
 
 # seda scripti käivitan vaid siis, kui tahan midagi testida.

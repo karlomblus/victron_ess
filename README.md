@@ -13,11 +13,13 @@ Minimaalselt vaja käivitada kord tunnis (näiteks esimesel minutil), et tehtaks
 
 # Toimimine:
 
+Korra ööpäevas loetakse netist NPS järgmise päeva hinnad
+
 Valitakse välja kõige soodsamad tunnid aku laadimiseks
 
 Kõige kallimatel tundidel kasutatakse akut ja elektrit võrgust ei võeta
 
-Vastavalt aku laetusele lisatakse jooksvalt tunde (päevane päikese laadimine) või visatakse mõni tund välja (suurenev koormus)
+Vastavalt aku laetusele lisatakse jooksvalt tunde (päevane päikese laadimine, väiksem tarbimine) või visatakse mõni tund välja (suurenev koormus)
 
 Akusse jäetakse lisaks võrgust laadimisele "ruumi" ka järgmise päeva päikeseelektriga laadimiseks
 
