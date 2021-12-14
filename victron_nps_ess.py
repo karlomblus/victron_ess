@@ -85,6 +85,16 @@ soc_current=loaddata2('com.victronenergy.system','/Dc/Battery/Soc')
 if avg_c>0:
     keskmine_tyhjendamishind=round(avg_s/avg_c,1)
 else:
+    # kui hetkel ei ole lubatud enam ühtegi tundi invertida, keskmine tühjendamishind tuleb olematu ning säästuennustus on vale
+    # see pole küll oluline, aga kuna esialgu veel jälgin scripti, siis on huvitav vaadata Võtan chargetime jagu kallimaid tunde
+    for pair in (hinnad2[::-1][:chargetime]):
+        #print ("alternatiivlist",pair)
+        avg_c+=1
+        avg_s+=pair[1]
+
+if avg_c>0:
+    keskmine_tyhjendamishind=round(avg_s/avg_c,1)
+else: # midagi läks ikka pekki
     keskmine_tyhjendamishind=0
 
 
@@ -118,6 +128,8 @@ elif tyhjendamine==0 and laadimine==0 and abs(current_soc_limit - soc_current)>1
 
 charge_price=keskmine_laadimishind*akuwh2/1000
 invert_price=keskmine_tyhjendamishind*akuwh2/1000
+
+
 paevasaast=round(invert_price-charge_price)
 print ("Laadimisega kulutan ", round(charge_price), "s, päeval kasutamata ",round(invert_price),"s, oletatav sääst",paevasaast,"senti")
 #print("Oletatav sääst kuus",round((invert_price-charge_price)*31/100)," euri, aastas: ",round((invert_price-charge_price)*365/100))
