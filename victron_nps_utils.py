@@ -32,10 +32,10 @@ except ImportError:
 
 
 def vorgutasu(tt): ## tt on UTC-s, aga python väljastab tunni lokaalses ajas
-    tund=int(datetime.utcfromtimestamp(tt).strftime('%H')) # ka winni arvutis õige UTC aeg
+    tund=int(datetime.datetime.utcfromtimestamp(tt).strftime('%H')) # ka winni arvutis õige UTC aeg
     #print("Küsiti võrgutasu tunni",tund,"kohta")
     if (tund>=21 or tund <5): return 2.95 # soodusaeg GMT järgi
-    if datetime.utcfromtimestamp(tt).weekday() >=5:  # 5 Sat, 6 Sun
+    if datetime.datetime.utcfromtimestamp(tt).weekday() >=5:  # 5 Sat, 6 Sun
         return 2.95 # nädalavahetustel ka soodus
     return 5.08 # päeva võrgutasu tariif
 
@@ -59,7 +59,7 @@ def download_prices(nihe,ohtuvenitus=0): # nihe on statistika tegemisel ajalukku
     g_start = time.gmtime(tt_start)
     g_end = time.gmtime(tt_end)
     
-    print("UTC hinnapäring vahemikus ", datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
+    print("UTC hinnapäring vahemikus ", datetime.datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
 
     tempdir= workdir+os.path.sep+"nps_history"
     if not os.path.exists(tempdir):

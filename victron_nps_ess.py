@@ -17,9 +17,9 @@ print("local time:",lt)
 
 
 # localtimest saab winni masinas GMT timestamp  victronis on mõlemad GMT-s ja saab ka õige timestampi
-tt_start=int(time.mktime(datetime(year=lt.tm_year, month=lt.tm_mon, day=lt.tm_mday, hour=lt.tm_hour, minute=0, second=0).timetuple()))
-tt_end=int(time.mktime(datetime(year=lt.tm_year, month=lt.tm_mon, day=lt.tm_mday, hour=lt.tm_hour, minute=59, second=59).timetuple()))
-print("Hetke UTC aeg on vahemikus ", datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
+tt_start=int(time.mktime(datetime.datetime(year=lt.tm_year, month=lt.tm_mon, day=lt.tm_mday, hour=lt.tm_hour, minute=0, second=0).timetuple()))
+tt_end=int(time.mktime(datetime.datetime(year=lt.tm_year, month=lt.tm_mon, day=lt.tm_mday, hour=lt.tm_hour, minute=59, second=59).timetuple()))
+print("Hetke UTC aeg on vahemikus ", datetime.datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
 
 
 
@@ -34,7 +34,7 @@ avg_c=avg_s=0;
 laadimine=0
 for pair in (chargelist):
     tt=int(pair[0])
-    print("Aeg: ",datetime.utcfromtimestamp(tt).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; ", end = '')
+    print("Aeg: ",datetime.datetime.utcfromtimestamp(tt).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; ", end = '')
     print("laadimistarve",(akuwh2 / chargetime/1000),"kWh, kokku",round((akuwh2 / chargetime/1000)*(pair[1]),1), "s" )
     #charge_price+=(akuwh2 / chargetime/1000)*(pair[1])  # tarve(kWh) * hind(senti)
     avg_c+=1
@@ -63,7 +63,7 @@ for pair in (invertlist):
         inverttime-=1; # tuleviku invertimised
     max_inverttime-=1 # kõik invertimiskorrad
 
-    print("Aeg: ",datetime.utcfromtimestamp(int(pair[0])).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; " , end = '')
+    print("Aeg: ",datetime.datetime.utcfromtimestamp(int(pair[0])).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; " , end = '')
     if pair[1]< keskmine_laadimishind+5:  # aku amort 4-5 senti kWh
         print(" ei ületa keskmist laadimishinda aku amordi võrra.")
         continue
