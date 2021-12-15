@@ -32,12 +32,22 @@ soc_current=loaddata2('com.victronenergy.system','/Dc/Battery/Soc')
 solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
 soc_maximum2=soc_maximum-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve);
 
+#todo: kui soc pole X aega 100-ni jõudnud, siis soc_maximum2+=X*?
+
+if soc_maximum2>98: # kui nii väike erinevus on, siis laadigu juba aku lõpuni täis
+    soc_maximum2=100
+if soc_maximum2< soc_minimum:
+    soc_maximum2=soc_minimum
+
+print ("Homse laadimise ennustus: ",solar_charge_estimate, "kWh, confi max soc:",soc_maximum, " seega võin laadida kuni: "+str(soc_maximum2)+"%");
+
+
 chargetime = min ( int(math.ceil(akuwh*(soc_maximum2-soc_current)/100 / charger_power))   , max_chargetime   )
 
 chargelist=ehita_laadimislist(hinnad2,chargetime)
 akuwh2=int(akuwh*(100-soc_minimum)/100) # kasutatav wh
 
-print("Laadida lubatud maksimaalselt",chargetime, "tundi")
+print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC põhjal lubame ",chargetime, "tundi")
 avg_c=avg_s=0;
 laadimine=0
 for pair in (chargelist):
@@ -115,14 +125,6 @@ else:
 
 
 
-#todo: kui soc pole X aega 100-ni jõudnud, siis soc_maximum2+=X*?
-
-if soc_maximum2>98: # kui nii väike erinevus on, siis laadigu juba aku lõpuni täis
-    soc_maximum2=100
-if soc_maximum2< soc_minimum:
-    soc_maximum2=soc_minimum
-
-print ("Homse laadimise ennustus: ",solar_charge_estimate, "kWh, confi max soc:",soc_maximum, " seega võin laadida kuni: "+str(soc_maximum2)+"%");
 
 
 if laadimine>0 and current_soc_limit < soc_maximum2:
