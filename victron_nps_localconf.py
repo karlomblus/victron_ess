@@ -12,7 +12,8 @@ workdir= "/run/media/mmcblk0p1/ess_data"
 # personaalne url, millelt homset päikesennustust alla laadida (uuri solcast.com.au)
 solarpredict_url=""
 
-chargetime=4 # mitu tundi lubame soodusajal laadida
+max_chargetime=4 # mitu tundi lubame soodusajal maksimaalselt laadida
+charger_power=3000 # selle põhjal otsustame, mitu tundi laadimisele kulutada (aku laetuse järgi)
 max_inverttime=20 # mitu tundi max inverteril on lubatud. Võib olla ka 24. Rohkem testimise jaoks see muutuja
 
 max_solar_soc_reserve=50 # mitu % maksimaalselt võib akut jätta järgmise päeva päikesega laadimise jaoks (ennustuse põhjal, lisaks arvestatakse soc_maximum väärtust)
