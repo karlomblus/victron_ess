@@ -84,6 +84,7 @@ current_soc_limit=loaddata2('com.victronenergy.settings','/Settings/CGwacs/Batte
 soc_current=loaddata2('com.victronenergy.system','/Dc/Battery/Soc')
 if avg_c>0:
     keskmine_tyhjendamishind=round(avg_s/avg_c,1)
+    print("Keskmine elektrihind akult töötamise ajal ",keskmine_tyhjendamishind,"senti")
 else:
     # kui hetkel ei ole lubatud enam ühtegi tundi invertida, keskmine tühjendamishind tuleb olematu ning säästuennustus on vale
     # see pole küll oluline, aga kuna esialgu veel jälgin scripti, siis on huvitav vaadata Võtan chargetime jagu kallimaid tunde
@@ -91,11 +92,12 @@ else:
         #print ("alternatiivlist",pair)
         avg_c+=1
         avg_s+=pair[1]
+    if avg_c>0:
+        keskmine_tyhjendamishind=round(avg_s/avg_c,1)
+        print("Keskmine oletuslik elektrihind akult töötamise ajal ",keskmine_tyhjendamishind,"senti")
+    else: # midagi läks ikka pekki
+        keskmine_tyhjendamishind=0
 
-if avg_c>0:
-    keskmine_tyhjendamishind=round(avg_s/avg_c,1)
-else: # midagi läks ikka pekki
-    keskmine_tyhjendamishind=0
 
 
 solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
