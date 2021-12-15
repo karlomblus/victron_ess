@@ -43,13 +43,18 @@ laadimine=0
 for pair in (chargelist):
     tt=int(pair[0])
     print("Aeg: ",datetime.datetime.utcfromtimestamp(tt).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; ", end = '')
-    print("laadimistarve",(akuwh2 / chargetime/1000),"kWh, kokku",round((akuwh2 / chargetime/1000)*(pair[1]),1), "s" )
+    print("laadimistarve",(akuwh2 / chargetime/1000),"kWh, kokku",round((akuwh2 / chargetime/1000)*(pair[1]),1), "s" , end = '')
+    if tt>=tt_start and tt <= tt_end:
+        print(" <--")
+        laadimine=1
+    elif tt<tt_start:
+        print ("+")
+    else:
+        print("");
     #charge_price+=(akuwh2 / chargetime/1000)*(pair[1])  # tarve(kWh) * hind(senti)
     avg_c+=1
     avg_s+=pair[1]
-    if tt>=tt_start and tt <= tt_end:
-        print("Hetkel peaksime laadima")
-        laadimine=1
+    
 
 keskmine_laadimishind=round(avg_s/avg_c,1)
 
