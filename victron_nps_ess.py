@@ -27,9 +27,17 @@ print("Hetke UTC aeg on vahemikus ", datetime.datetime.utcfromtimestamp( tt_star
 ee=download_prices(0,ohtuvenitus=1);
 time.sleep(1)
 hinnad2=sort_prices(ee)
+
+soc_current=loaddata2('com.victronenergy.system','/Dc/Battery/Soc')
+solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
+soc_maximum2=soc_maximum-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve);
+
+chargetime = min ( int(math.ceil(akuwh*(soc_maximum2-soc_current)/100 / charger_power))   , max_chargetime   )
+
 chargelist=ehita_laadimislist(hinnad2,chargetime)
 akuwh2=int(akuwh*(100-soc_minimum)/100) # kasutatav wh
 
+print("Laadida lubatud maksimaalselt",chargetime, "tundi")
 avg_c=avg_s=0;
 laadimine=0
 for pair in (chargelist):
@@ -81,7 +89,7 @@ for pair in (invertlist):
         tyhjendamine=1
 
 current_soc_limit=loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit')
-soc_current=loaddata2('com.victronenergy.system','/Dc/Battery/Soc')
+
 if avg_c>0:
     keskmine_tyhjendamishind=round(avg_s/avg_c,1)
     print("Keskmine elektrihind akult töötamise ajal ",keskmine_tyhjendamishind,"senti")
@@ -100,8 +108,7 @@ else:
 
 
 
-solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
-soc_maximum2=soc_maximum-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve);
+
 
 #todo: kui soc pole X aega 100-ni jõudnud, siis soc_maximum2+=X*?
 
