@@ -44,16 +44,20 @@ print ("Homse laadimise ennustus: ",solar_charge_estimate, "kWh, confi max soc:"
 
 chargetime = min ( int(math.ceil(akuwh*(soc_maximum2-soc_current)/100 / charger_power))   , max_chargetime   )
 
-chargelist=ehita_laadimislist(hinnad2,chargetime)
+chargelist=ehita_laadimislist(hinnad2,max_chargetime)
 akuwh2=int(akuwh*(100-soc_minimum)/100) # kasutatav wh
 
-print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC põhjal lubame ",chargetime, "tundi")
+print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC põhjal lubame ",chargetime, "tundi, laadida on vaja:",int(akuwh*(soc_maximum2-soc_current)/100),"wh")
 avg_c=avg_s=0;
 laadimine=0
 for pair in (chargelist):
     tt=int(pair[0])
+    if tt>=tt_start:
+        chargetime-=1; # tuleviku laadimised
+    max_chargetime-=1 # kõik laadimiskorrad
+    
     print("Aeg: ",datetime.datetime.utcfromtimestamp(tt).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; ", end = '')
-    print("laadimistarve",(akuwh2 / chargetime/1000),"kWh, kokku",round((akuwh2 / chargetime/1000)*(pair[1]),1), "s" , end = '')
+    #print("laadimistarve",(akuwh2 / chargetime/1000),"kWh, kokku",round((akuwh2 / max_chargetime/1000)*(pair[1]),1), "s" , end = '')
     if tt>=tt_start and tt <= tt_end:
         print(" <--")
         laadimine=1
