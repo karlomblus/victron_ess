@@ -23,6 +23,8 @@ Vastavalt aku laetusele lisatakse jooksvalt tunde (päevane päikese laadimine, 
 
 Akusse jäetakse lisaks võrgust laadimisele "ruumi" ka järgmise päeva päikeseelektriga laadimiseks
 
+Laadimistunde vähendatakse vastavalt laadija võimsusele ja aku laetusele, et kasutada ära võimalikult soodsad tunnid
+
 # todo:
 
 Arvestada ajalugu, et aku pidevalt SoC alumises otsas poleks (umbes nagu victron battery optimizer)
