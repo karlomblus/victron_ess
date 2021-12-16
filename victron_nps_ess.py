@@ -51,8 +51,9 @@ print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC põhjal lubam
 avg_c=avg_s=0;
 laadimine=0
 for pair in (chargelist):
+    if max_chargetime<=0 or chargetime<=0: break # rohkem pole lubatud
     tt=int(pair[0])
-    if tt>=tt_start:
+    if tt>tt_end:
         chargetime-=1; # tuleviku laadimised
     max_chargetime-=1 # kõik laadimiskorrad
     
