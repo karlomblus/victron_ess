@@ -28,7 +28,7 @@ ee=download_prices(0,ohtuvenitus=1);
 time.sleep(1)
 hinnad2=sort_prices(ee)
 
-soc_current=loaddata2('com.victronenergy.system','/Dc/Battery/Soc')
+soc_current=int(loaddata2('com.victronenergy.system','/Dc/Battery/Soc'))
 solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
 soc_maximum2=soc_maximum-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve);
 
@@ -50,12 +50,15 @@ akuwh2=int(akuwh*(100-soc_minimum)/100) # kasutatav wh
 print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC põhjal lubame ",chargetime, "tundi, laadida on vaja:",int(akuwh*(soc_maximum2-soc_current)/100),"wh")
 avg_c=avg_s=0;
 laadimine=0
+max_chargetime2=max_chargetime  # koopia tsüklis loendamiseks
+chargetime2=chargetime
+
 for pair in (chargelist):
-    if max_chargetime<=0 or chargetime<=0: break # rohkem pole lubatud
+    if max_chargetime2<=0 or chargetime2<=0: break # rohkem pole lubatud
     tt=int(pair[0])
     if tt>tt_end:
-        chargetime-=1; # tuleviku laadimised
-    max_chargetime-=1 # kõik laadimiskorrad
+        chargetime2-=1; # tuleviku laadimised
+    max_chargetime2-=1 # kõik laadimiskorrad
     
     print("Aeg: ",datetime.datetime.utcfromtimestamp(tt).strftime('%Y-%m-%d %H:%M:%S'),"hind ",round(pair[1],1),"senti; ", end = '')
     #print("laadimistarve",(akuwh2 / chargetime/1000),"kWh, kokku",round((akuwh2 / max_chargetime/1000)*(pair[1]),1), "s" , end = '')
@@ -108,7 +111,7 @@ for pair in (invertlist):
         print("Hetkel peaksime tsüklisüsteemi juures tühjendama")
         tyhjendamine=1
 
-current_soc_limit=loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit')
+current_soc_limit=int(loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit'))
 
 if avg_c>0:
     keskmine_tyhjendamishind=round(avg_s/avg_c,1)
