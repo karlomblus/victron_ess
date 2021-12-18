@@ -158,5 +158,6 @@ paevasaast=round(invert_price-charge_price)
 print ("Laadimisega kulutan ", round(charge_price), "s, päeval kasutamata ",round(invert_price),"s, oletatav sääst",paevasaast,"senti")
 #print("Oletatav sääst kuus",round((invert_price-charge_price)*31/100)," euri, aastas: ",round((invert_price-charge_price)*365/100))
 
+log_statistics()
 
 

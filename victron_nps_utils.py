@@ -59,16 +59,15 @@ def download_prices(nihe,ohtuvenitus=0): # nihe on statistika tegemisel ajalukku
     g_start = time.gmtime(tt_start)
     g_end = time.gmtime(tt_end)
     
-    print("UTC hinnapäring vahemikus ", datetime.datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
-
+    #print("UTC hinnapäring vahemikus ", datetime.datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
     tempdir= workdir+os.path.sep+"nps_history"
     if not os.path.exists(tempdir):
         os.mkdir(tempdir)
     
     tempfile=tempdir+os.path.sep+str(g_start.tm_year)+"-"+str("%02d" %g_start.tm_mon,)+"-"+str("%02d" %g_start.tm_mday,)+'-T'+ ("%02d" % (g_start.tm_hour,)) +'-'+str(round((tt_end-tt_start)/3600,2))+'h.txt'
-    print("tempfile: ", tempfile)
+    #print("tempfile: ", tempfile)
     if exists(tempfile):
-        print("Using local cache for prices")
+        #print("Using local cache for prices")
         file = open(tempfile, "r")
         data = file.read()
         js = json.loads(data)
@@ -76,7 +75,7 @@ def download_prices(nihe,ohtuvenitus=0): # nihe on statistika tegemisel ajalukku
             ee=js['data']['ee']
             return ee
         except KeyError:
-            print("Cache failed, fetching again")
+            print("WARNING: Cache failed, fetching picelist again")
 
     start = str(g_start.tm_year)+ '-'+ ("%02d" % (g_start.tm_mon,))+ '-'+ ("%02d" % (g_start.tm_mday,)) +'T'+ ("%02d" % (g_start.tm_hour,)) +'%3A'+ ("%02d" % (g_start.tm_min,)) +'%3A'+ ("%02d" % (g_start.tm_sec,)) +'.000Z'
     end = str(g_end.tm_year)+ '-'+ ("%02d" % (g_end.tm_mon,))+ '-'+ ("%02d" % (g_end.tm_mday,))+'T'+ ("%02d" % (g_end.tm_hour,)) +'%3A'+ ("%02d" % (g_end.tm_min,)) +'%3A'+ ("%02d" % (g_end.tm_sec,)) +'.000Z'
@@ -145,7 +144,7 @@ def loaddata(dbus,a,b):
     bus = dbus.SystemBus()
     objectdata = bus.get_object(a, b)
     iface = dbus.Interface(objectdata, "com.victronenergy.BusItem")
-    return int(iface.GetValue())
+    return iface.GetValue()
 
 def loaddata2(a,b):
     try:
@@ -173,17 +172,17 @@ def leia_inverttime():
         print("WARNING: oleme demomasonas, dbusi pole")
         return 1
     
-    soc_current=loaddata(dbus,'com.victronenergy.system','/Dc/Battery/Soc')
+    soc_current=int(loaddata(dbus,'com.victronenergy.system','/Dc/Battery/Soc'))
 
     whleft=(soc_current-soc_minimum)* akuwh / 100
-    ac_pout=loaddata(dbus,'com.victronenergy.system','/Ac/Consumption/L1/Power')
+    ac_pout=int(loaddata(dbus,'com.victronenergy.system','/Ac/Consumption/L1/Power'))
     ac_pout2=ac_pout
     if ac_pout2 > 2000: # keskmine võimsus ei peaks üle 2000 olema. Ilmselt (väga?) ajutine suurem tarbimine #todo: leida reaalne keskmine
         ac_pout2=2000
     if ac_pout2 <1 : # kui toodame võrku, siis inverttime on kinda lõpmatus sel hetkel
         ac_pout2=1
     inverttime=whleft/ac_pout2
-    current_soc_limit=loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit')
+    current_soc_limit=int(loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit'))
     print("soc_current:",soc_current,"soc_minimum:",soc_minimum,"current_soc_limit:",current_soc_limit,"whleft:",whleft,"ac_pout:",ac_pout,"inverttime:",inverttime)
     return int(math.ceil(inverttime)) # ümardame üles, soc piirist ei minda niiehknaa alla
 
@@ -288,8 +287,59 @@ def parse_isoduration(s):
     return int(dt.total_seconds())
 
 
+def get_current_powerprice():
+    ee=download_prices(0,ohtuvenitus=0);
+    lt= time.localtime(time.time())
+    tt_start=int(time.mktime(datetime.datetime(year=lt.tm_year, month=lt.tm_mon, day=lt.tm_mday, hour=lt.tm_hour, minute=0, second=0).timetuple()))
+    tt_end=int(time.mktime(datetime.datetime(year=lt.tm_year, month=lt.tm_mon, day=lt.tm_mday, hour=lt.tm_hour, minute=59, second=59).timetuple()))
+    for key in (ee):
+        tt=key['timestamp']
+        pr=key['price']
+        if tt >= tt_start and tt <=tt_end:
+            return pr/10+vorgutasu(tt)
+    print ("ERROR: ei suuda leida hetke tunnihinda")
+    return -1
+    
+
+def log_statistics():
+    global workdir
+    logfile= workdir+os.path.sep+"data.log"
+    gmt = time.gmtime(time.time())
+    tt=int(time.mktime(gmt))
+    inverterDbusService="com.victronenergy.vebus.ttyS4"  # com.victronenergy.system/VebusService  ?
+    
+    #batteryDbusService="com.victronenergy.battery.socketcan_can1"
+    batteryDbusService=loaddata2("com.victronenergy.system","/Dc/Battery/BatteryService")
+
+    AcIn1ToAcOut=round(loaddata2(inverterDbusService,'/Energy/AcIn1ToAcOut'),2)        # 181.79     <- passthru
+    InverterToAcOut=round(loaddata2(inverterDbusService,'/Energy/InverterToAcOut'),2)  # 85.8158    <- akust majja
+    AcIn1ToInverter=round(loaddata2(inverterDbusService,'/Energy/AcIn1ToInverter'),2)  # 92.6242    <- võrgust laadimine
+    OutToInverter=round(loaddata2(inverterDbusService,'/Energy/OutToInverter'),2)      # 12.7431    <- päikesest laadimine
+    AcOutToAcIn1=round(loaddata2(inverterDbusService,'/Energy/AcOutToAcIn1'),2)        # 0.309476   <- feedback päikesest
+    InverterToAcIn1=round(loaddata2(inverterDbusService,'/Energy/InverterToAcIn1'),2)  # 0.218453   <- feedback akust
+
+    soc_current=int(loaddata2('com.victronenergy.system','/Dc/Battery/Soc'))
+    current_soc_limit=int(loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/MinimumSocLimit'))
+    batteryLifeState=loaddata2('com.victronenergy.settings','/Settings/CGwacs/BatteryLife/State')
+
+    batteryMaxCellTemperature=loaddata2(batteryDbusService,'/System/MaxCellTemperature')
+
+    currentPrice=get_current_powerprice()
+
+    logstring=str(tt)+ "\t" + str(AcIn1ToAcOut)+ "\t" + str(InverterToAcOut)+ "\t" + str(AcIn1ToInverter)+ "\t" + \
+              str(OutToInverter)+ "\t" + str(AcOutToAcIn1)+ "\t" + str(InverterToAcIn1) + "\t" + \
+              str(soc_current)+ "\t" + str(current_soc_limit)+"\t"+str(batteryLifeState)+ "\t" + \
+              str(batteryMaxCellTemperature)+"\t"+str(currentPrice)
+    print("log:" + logstring)
+
+    with open(logfile,'a') as f:
+        f.write(logstring+"\n")
+
+
 # seda scripti käivitan vaid siis, kui tahan midagi testida.
 if __name__ == "__main__":
     charge_est=next_solarpredict(solarpredict_url,1500)
     soc_maximum2=int(round(soc_maximum - (100*charge_est*1000/akuwh)));
     print ("Homse tootmise ennustus: ",charge_est, "confi max soc:",soc_maximum, " seega võin laadida kuni: ",soc_maximum2);
+    log_statistics()
+    
