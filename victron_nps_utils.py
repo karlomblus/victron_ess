@@ -324,7 +324,7 @@ def log_statistics():
 
     batteryMaxCellTemperature=loaddata2(batteryDbusService,'/System/MaxCellTemperature')
 
-    currentPrice=get_current_powerprice()
+    currentPrice=round(get_current_powerprice(),1)
 
     logstring=str(tt)+ "\t" + str(AcIn1ToAcOut)+ "\t" + str(InverterToAcOut)+ "\t" + str(AcIn1ToInverter)+ "\t" + \
               str(OutToInverter)+ "\t" + str(AcOutToAcIn1)+ "\t" + str(InverterToAcIn1) + "\t" + \
