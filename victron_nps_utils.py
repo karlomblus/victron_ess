@@ -196,11 +196,16 @@ def download_solarpredict(url):
     # mind huvitav ennustus vaid soodusaja (uus päev) hetkel. Kuigi ennustus võib hommikuks täpsustuda, ei ole see enam oluline
     # sel viisil pean faili alla laadima vaid ühe korra ööpäevas ja tagantjärele tarkus mind ei huvita
     gmt = time.gmtime(time.time())
-    if gmt.tm_hour>=21: # kell 21 algab meil uus päev, st. uus soodusaja algus
-        gmt = time.gmtime(time.time()+86400) # suht suva, kas liidan ööpäeva või 3 tundi. Mõlemal juhul saan uue kuupäeva
+    #if gmt.tm_hour>=21: # kell 21 algab meil uus päev, st. uus soodusaja algus
+    #    gmt = time.gmtime(time.time()+86400) # suht suva, kas liidan ööpäeva või 3 tundi. Mõlemal juhul saan uue kuupäeva
+    
+    if gmt.tm_hour>=21 or gmt.tm_hour<=6: # öisel ajal huvitab tihedam uuendus (nende arv on piiratud)
+        hour=("%02d" % (gmt.tm_hour-gmt.tm_hour%3))
+    else:
+        hour="06"  # päeva ennustus pole oluline, jääme hommikusse kinni.
 
-    tempfile=tempdir+os.path.sep+  str(gmt.tm_year)+"-"+str("%02d" %gmt.tm_mon,)+"-"+str("%02d" %gmt.tm_mday,)+'-predict.txt'
-    #print("tempfile: ", tempfile)
+    tempfile=tempdir+os.path.sep+  str(gmt.tm_year)+"-"+str("%02d" %gmt.tm_mon,)+"-"+str("%02d" %gmt.tm_mday,)+"-"+str(hour)+'-predict.txt'
+    print("tempfile: ", tempfile)
     if exists(tempfile):
         print("Using local cache for solar_predict")
         file = open(tempfile, "r")
