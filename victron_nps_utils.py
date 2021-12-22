@@ -53,7 +53,7 @@ def download_prices(nihe,ohtuvenitus=0): # nihe on statistika tegemisel ajalukku
     # kolm tundi enne uue soodusaja algust pärides vaatame natuke pikemalt ette. Võib juhtuda, et kell 20 on päeva kõige soodsam
     # tund laadimiseks samas 3 tundi hiljem (uus öö) on veel soodsam. Ette vaatame vaid õhtu viimastel tundidel, muidu jälle risk, et
     # üritame laadimist mitu päeva edasi lükata
-    if gmt.tm_hour>=18 and gmt.tm_hour<21 and ohtuvenitus==1: 
+    if gmt.tm_hour>=16 and gmt.tm_hour<21 and ohtuvenitus==1: 
         tt_end+=3600*5;
     
     g_start = time.gmtime(tt_start)
