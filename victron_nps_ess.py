@@ -73,8 +73,10 @@ for pair in (chargelist):
     avg_c+=1
     avg_s+=pair[1]
     
-
-keskmine_laadimishind=round(avg_s/avg_c,1)
+if avg_c==0: # veider olukord, mis juhtub, kui polegi öösel laadida vaja
+    keskmine_laadimishind=chargelist[1][1]
+else:
+    keskmine_laadimishind=round(avg_s/avg_c,1)
 
 #todo: keskmine laadimishind võiks võtta arvesse ka päeval päikesest laetud nullhinda.
 
