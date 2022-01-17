@@ -30,7 +30,7 @@ hinnad2=sort_prices(ee)
 
 soc_current=int(loaddata2('com.victronenergy.system','/Dc/Battery/Soc'))
 solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
-soc_maximum2=soc_maximum-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve);
+soc_maximum2=min(soc_maximum-int(round((100*solar_charge_estimate*1000/akuwh))), 100-max_solar_soc_reserve);
 
 #todo: kui soc pole X aega 100-ni jõudnud, siis soc_maximum2+=X*?
 
