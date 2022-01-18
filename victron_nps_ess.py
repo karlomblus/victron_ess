@@ -30,7 +30,8 @@ hinnad2=sort_prices(ee)
 
 soc_current=int(loaddata2('com.victronenergy.system','/Dc/Battery/Soc'))
 solar_charge_estimate=next_solarpredict(solarpredict_url,1700) # omatarve 1700 on mu isikliku keskmise järgi
-soc_maximum2=min(soc_maximum-int(round((100*solar_charge_estimate*1000/akuwh))), 100-max_solar_soc_reserve);
+soc_solarpredict=100-min(int(round((100*solar_charge_estimate*1000/akuwh))), max_solar_soc_reserve); # varu jätame ennustuse jagu, aga mitte rohkem kui solar_soc_reserve jagu
+soc_maximum2=min(soc_maximum, soc_solarpredict); # kasutusele võtame, kumb parajagu väiksem on. Kui solari jagu jääb max-st üles, siis seda ei arvesta
 
 #todo: kui soc pole X aega 100-ni jõudnud, siis soc_maximum2+=X*?
 
@@ -47,7 +48,7 @@ chargetime = min ( int(math.ceil(akuwh*(soc_maximum2-soc_current)/100 / charger_
 chargelist=ehita_laadimislist(hinnad2,max_chargetime)
 akuwh2=int(akuwh*(100-soc_minimum)/100) # kasutatav wh
 
-print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC põhjal lubame ",chargetime, "tundi, laadida on vaja:",int(akuwh*(soc_maximum2-soc_current)/100),"wh")
+print("Laadida lubatud maksimaalselt",max_chargetime, ", hetke SoC",soc_current,"% põhjal lubame ",chargetime, "tundi, laadida on vaja:",int(akuwh*(soc_maximum2-soc_current)/100),"wh")
 avg_c=avg_s=0;
 laadimine=0
 max_chargetime2=max_chargetime  # koopia tsüklis loendamiseks
