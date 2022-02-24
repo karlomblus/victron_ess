@@ -341,6 +341,38 @@ def log_statistics():
     with open(logfile,'a') as f:
         f.write(logstring+"\n")
 
+def log_find_tt_offset(timestamp):
+    logfile= workdir+os.path.sep+"data.log"
+    fp=open(logfile, "rb")       # must be binary for SEEK_END
+    fp.seek(-10000,os.SEEK_END)
+    seensmaller=0  # kui olen korra näinud väiksemat timestampi, siis ettepoole enam ei hüppa
+    fp.readline(999) #  to the end of line
+    lastline=fp.readline(999).decode('ascii')
+    lastpos=fp.tell()
+
+    while True:
+        curpos=fp.tell()
+        #print("curpos: ",curpos)
+        line=fp.readline(999).decode('ascii')
+        ctt=int(line.split("\t")[0],10)
+        if ctt > timestamp and seensmaller==0:  # olen liiga kaugel, hüppan suvakalt ettepoole
+            fp.seek(-1000, os.SEEK_CUR)
+            fp.readline(999) # poolik rida eest minema
+            lastpos=fp.tell()
+            lastline=fp.readline(999).decode('ascii')
+        elif ctt > timestamp and seensmaller==1: # olen ühe rea üle - ÕIGE KOHT
+            print("lastline: ",lastline)
+            print("line: ",line)
+            return lastpos
+        else: # olen natuke eespool (või õige koha peal, aga tahan saada eelmiseks reaks) ja liigun ühe rea võrra eedasi
+            seensmaller=1
+            lastpos=curpos
+            lastline=line
+        
+
+
+# seda scripti käivitan vaid siis, kui tahan midagi testida.
+if __name__ == "__main__":
     #charge_est=next_solarpredict(solarpredict_url,1500)
     #soc_maximum2=int(round(soc_maximum - (100*charge_est*1000/akuwh)));
     #print ("Homse tootmise ennustus: ",charge_est, "confi max soc:",soc_maximum, " seega võin laadida kuni: ",soc_maximum2);
