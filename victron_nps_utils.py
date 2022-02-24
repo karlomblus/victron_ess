@@ -302,7 +302,7 @@ def get_current_powerprice():
         tt=key['timestamp']
         pr=key['price']
         if tt >= tt_start and tt <=tt_end:
-            return pr/10+vorgutasu(tt)
+            return (pr/10)*1.2+vorgutasu(tt)
     print ("ERROR: ei suuda leida hetke tunnihinda")
     return -1
     
