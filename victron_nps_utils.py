@@ -33,11 +33,12 @@ except ImportError:
 
 def vorgutasu(tt): ## tt on UTC-s, aga python väljastab tunni lokaalses ajas
     tund=int(datetime.datetime.utcfromtimestamp(tt).strftime('%H')) # ka winni arvutis õige UTC aeg
+    # taastuvenergia tasu  0,0113€/kWh    Elektriaktsiis 0,001€/kWh   = 1,23+km=1,476 senti
     #print("Küsiti võrgutasu tunni",tund,"kohta")
-    if (tund>=21 or tund <5): return 2.95 # soodusaeg GMT järgi
+    if (tund>=21 or tund <5): return (2.95+1.476) # soodusaeg GMT järgi
     if datetime.datetime.utcfromtimestamp(tt).weekday() >=5:  # 5 Sat, 6 Sun
-        return 2.95 # nädalavahetustel ka soodus
-    return 5.08 # päeva võrgutasu tariif
+        return (2.95+1.476) # nädalavahetustel ka soodus
+    return (5.08+1.476) # päeva võrgutasu tariif
 
 
 
@@ -111,7 +112,7 @@ def sort_prices(ee):
         tt=key['timestamp']
         pr=key['price']
         #print ("ajal " , datetime.utcfromtimestamp( tt).strftime('%Y-%m-%d %H:%M:%S') , " on hind ", round(pr/10,1),"senti + vt",vorgutasu(tt),"senti")
-        pr=pr/10+vorgutasu(tt)
+        pr=(pr/10)*1.20+vorgutasu(tt) # hinnad käibemaksuga
         hinnad.update({tt: pr})
     import operator
     return sorted(hinnad.items(), key=operator.itemgetter(1))  # sorteerime hindade järjekorras
@@ -253,7 +254,7 @@ def next_solarpredict(url,selfconsume):
         gmt = time.gmtime(time.time()+86400)
     tt_end=calendar.timegm(datetime.datetime(year=gmt.tm_year, month=gmt.tm_mon, day=gmt.tm_mday, hour=20, minute=59, second=59).timetuple())
     tt_start=tt_end-86400+1  +3600*6  # vaevalt UTC21 päike paistab, aga jätame eelmise õhtu ikkagi välja
-    #print("Meid huvitab vahemik ", datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
+    #print("Meid huvitab vahemik ", datetime.datetime.utcfromtimestamp( tt_start).strftime('%Y-%m-%d %H:%M:%S') , "kuni",datetime.datetime.utcfromtimestamp( tt_end).strftime('%Y-%m-%d %H:%M:%S'))
     total_est=charge_est=0;
     for x in fc:
         #print(x) # period
@@ -340,11 +341,10 @@ def log_statistics():
     with open(logfile,'a') as f:
         f.write(logstring+"\n")
 
+    #charge_est=next_solarpredict(solarpredict_url,1500)
+    #soc_maximum2=int(round(soc_maximum - (100*charge_est*1000/akuwh)));
+    #print ("Homse tootmise ennustus: ",charge_est, "confi max soc:",soc_maximum, " seega võin laadida kuni: ",soc_maximum2);
+    #log_statistics()
+    print(log_find_tt_offset(1644705219))
 
-# seda scripti käivitan vaid siis, kui tahan midagi testida.
-if __name__ == "__main__":
-    charge_est=next_solarpredict(solarpredict_url,1500)
-    soc_maximum2=int(round(soc_maximum - (100*charge_est*1000/akuwh)));
-    print ("Homse tootmise ennustus: ",charge_est, "confi max soc:",soc_maximum, " seega võin laadida kuni: ",soc_maximum2);
-    log_statistics()
-    
+
